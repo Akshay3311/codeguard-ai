@@ -1,4 +1,5 @@
-const BASE_URL = '';
+const BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export async function fetchHealth() {
   const res = await fetch(`${BASE_URL}/health`);
@@ -16,40 +17,87 @@ export async function startAnalysis(repositoryUrl, branch = 'main') {
   const res = await fetch(`${BASE_URL}/api/v1/analyze`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ repository_url: repositoryUrl, branch })
+    body: JSON.stringify({
+      repository_url: repositoryUrl,
+      branch
+    })
   });
+
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.detail || 'Failed to trigger repository analysis');
+    throw new Error(
+      errorData.detail || 'Failed to trigger repository analysis'
+    );
   }
+
   return res.json();
 }
 
 export async function fetchAnalysisStatus(analysisId) {
-  const res = await fetch(`${BASE_URL}/api/v1/analysis/${analysisId}`);
-  if (!res.ok) throw new Error('Failed to fetch analysis status');
+  const res = await fetch(
+    `${BASE_URL}/api/v1/analysis/${analysisId}`
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch analysis status');
+  }
+
   return res.json();
 }
 
-export async function fetchAnalysisFindings(analysisId, { category, severity, filePath } = {}) {
+export async function fetchAnalysisFindings(
+  analysisId,
+  { category, severity, filePath } = {}
+) {
   const params = new URLSearchParams();
-  if (category && category !== 'all') params.append('category', category);
-  if (severity && severity !== 'all') params.append('severity', severity);
-  if (filePath) params.append('file_path', filePath);
 
-  const res = await fetch(`${BASE_URL}/api/v1/analysis/${analysisId}/findings?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch findings');
+  if (category && category !== 'all') {
+    params.append('category', category);
+  }
+
+  if (severity && severity !== 'all') {
+    params.append('severity', severity);
+  }
+
+  if (filePath) {
+    params.append('file_path', filePath);
+  }
+
+  const queryString = params.toString();
+
+  const res = await fetch(
+    `${BASE_URL}/api/v1/analysis/${analysisId}/findings${
+      queryString ? `?${queryString}` : ''
+    }`
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch findings');
+  }
+
   return res.json();
 }
 
 export async function fetchFullReport(analysisId) {
-  const res = await fetch(`${BASE_URL}/api/v1/analysis/${analysisId}/report`);
-  if (!res.ok) throw new Error('Failed to fetch full report');
+  const res = await fetch(
+    `${BASE_URL}/api/v1/analysis/${analysisId}/report`
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch full report');
+  }
+
   return res.json();
 }
 
 export async function fetchRepositories() {
-  const res = await fetch(`${BASE_URL}/api/v1/repositories`);
-  if (!res.ok) throw new Error('Failed to fetch repository history');
+  const res = await fetch(
+    `${BASE_URL}/api/v1/repositories`
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch repository history');
+  }
+
   return res.json();
 }
