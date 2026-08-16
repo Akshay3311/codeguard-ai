@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: codeguard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codeguard_user
+      POSTGRES_PASSWORD: codeguard_password
+      POSTGRES_DB: codeguard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codeguard_user -d codeguard_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: codeguard-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://codeguard_user:codeguard_password@postgres:5432/codeguard_db
+      - SYNC_DATABASE_URL=postgresql://codeguard_user:codeguard_password@postgres:5432/codeguard_db
+      - LLM_PROVIDER=heuristic
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - storage_data:/app/storage
+
+volumes:
+  postgres_data:
+  storage_data:
