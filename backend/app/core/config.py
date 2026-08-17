@@ -1,51 +1,117 @@
+from pathlib import Path
 from typing import List, Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# ============================================================
+# PROJECT PATHS
+# ============================================================
+
+# Project structure:
+#
+# codeguard-ai/
+# ├── backend/
+# │   └── app/
+# │       └── core/
+# │           └── config.py   <-- this file
+# ├── data/
+# │   └── knowledge/
+# ├── frontend/
+# └── ...
+#
+# parents[0] = core
+# parents[1] = app
+# parents[2] = backend
+# parents[3] = codeguard-ai
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+
+# ============================================================
+# DEFAULT DIRECTORIES
+# ============================================================
+
+# Project-level knowledge base:
+# codeguard-ai/data/knowledge/
+
+DEFAULT_KNOWLEDGE_BASE_DIR = (
+    PROJECT_ROOT / "data" / "knowledge"
+)
+
+
+# Local storage directory:
+# codeguard-ai/storage/
+
+DEFAULT_STORAGE_DIR = PROJECT_ROOT / "storage"
+
+
+# ============================================================
+# APPLICATION SETTINGS
+# ============================================================
+
 class Settings(BaseSettings):
-    # ============================================================
-    # APPLICATION
-    # ============================================================
 
-    PROJECT_NAME: str = "CodeGuard AI"
+    # --------------------------------------------------------
+    # Application
+    # --------------------------------------------------------
 
-    VERSION: str = "1.0.0"
+    PROJECT_NAME: str = Field(
+        default="CodeGuard AI",
+        description="Application name"
+    )
 
-    API_V1_STR: str = "/api/v1"
+    VERSION: str = Field(
+        default="1.0.0",
+        description="Application version"
+    )
+
+    API_V1_STR: str = Field(
+        default="/api/v1",
+        description="API version prefix"
+    )
 
     ENVIRONMENT: str = Field(
         default="development",
         description="Application environment"
     )
 
-    # ============================================================
-    # DATABASE
-    # ============================================================
+    # --------------------------------------------------------
+    # Database
+    # --------------------------------------------------------
 
     DATABASE_URL: str = Field(
         default="sqlite+aiosqlite:///./codeguard.db",
-        description="Async database connection string"
+        description=(
+            "Async database connection string. "
+            "Can be PostgreSQL or SQLite."
+        )
     )
 
     SYNC_DATABASE_URL: str = Field(
         default="sqlite:///./codeguard.db",
-        description="Synchronous database connection string"
+        description=(
+            "Synchronous database connection string "
+            "for migrations or synchronous tools."
+        )
     )
 
-    # ============================================================
-    # STORAGE & TEMPORARY DIRECTORIES
-    # ============================================================
+    # --------------------------------------------------------
+    # Storage & Temporary Directories
+    # --------------------------------------------------------
 
     STORAGE_DIR: str = Field(
-        default="./storage",
-        description="Directory for temporary repository clones and file cache"
+        default=str(DEFAULT_STORAGE_DIR),
+        description=(
+            "Directory for temporary repository clones "
+            "and file cache."
+        )
     )
 
     MAX_REPO_SIZE_MB: int = Field(
         default=50,
-        description="Maximum repository size in MB"
+        description="Maximum repository size in MB to clone"
     )
 
     MAX_FILE_SIZE_KB: int = Field(
@@ -58,9 +124,9 @@ class Settings(BaseSettings):
         description="Maximum Python files to analyze per run"
     )
 
-    # ============================================================
-    # AI / LLM CONFIGURATION
-    # ============================================================
+    # --------------------------------------------------------
+    # AI / LLM Configuration
+    # --------------------------------------------------------
 
     LLM_PROVIDER: str = Field(
         default="heuristic",
@@ -71,58 +137,76 @@ class Settings(BaseSettings):
     )
 
     # OpenAI
+
     OPENAI_API_KEY: Optional[str] = Field(
-        default=None
+        default=None,
+        description="OpenAI API key"
     )
 
     OPENAI_MODEL: str = Field(
-        default="gpt-4o-mini"
+        default="gpt-4o-mini",
+        description="OpenAI model name"
     )
 
     # Google Gemini
+
     GEMINI_API_KEY: Optional[str] = Field(
-        default=None
+        default=None,
+        description="Google Gemini API key"
     )
 
     GEMINI_MODEL: str = Field(
-        default="gemini-1.5-flash"
+        default="gemini-1.5-flash",
+        description="Google Gemini model name"
     )
 
     # Anthropic
+
     ANTHROPIC_API_KEY: Optional[str] = Field(
-        default=None
+        default=None,
+        description="Anthropic API key"
     )
 
     ANTHROPIC_MODEL: str = Field(
-        default="claude-3-5-sonnet-20241022"
+        default="claude-3-5-sonnet-20241022",
+        description="Anthropic model name"
     )
 
     # Ollama
+
     OLLAMA_BASE_URL: str = Field(
-        default="http://localhost:11434"
+        default="http://localhost:11434",
+        description="Ollama server URL"
     )
 
     OLLAMA_MODEL: str = Field(
-        default="llama3"
+        default="llama3",
+        description="Ollama model name"
     )
 
-    # ============================================================
-    # RAG / KNOWLEDGE BASE
-    # ============================================================
+    # --------------------------------------------------------
+    # RAG / Knowledge Base
+    # --------------------------------------------------------
 
     KNOWLEDGE_BASE_DIR: str = Field(
-        default="./data/knowledge",
-        description="Path to knowledge base markdown files"
+        default=str(DEFAULT_KNOWLEDGE_BASE_DIR),
+        description=(
+            "Absolute path to the project-level "
+            "data/knowledge directory."
+        )
     )
 
     RAG_TOP_K: int = Field(
         default=3,
-        description="Number of knowledge chunks retrieved per query"
+        description=(
+            "Number of knowledge chunks retrieved "
+            "per agent query."
+        )
     )
 
-    # ============================================================
-    # TECHNICAL DEBT SCORING WEIGHTS
-    # ============================================================
+    # --------------------------------------------------------
+    # Technical Debt Scoring Weights
+    # --------------------------------------------------------
 
     WEIGHT_SECURITY: float = Field(
         default=0.35,
@@ -149,9 +233,9 @@ class Settings(BaseSettings):
         description="Weight for duplicate logic"
     )
 
-    # ============================================================
+    # --------------------------------------------------------
     # CORS
-    # ============================================================
+    # --------------------------------------------------------
 
     CORS_ORIGINS: List[str] = Field(
         default=[
@@ -167,9 +251,9 @@ class Settings(BaseSettings):
         description="Allowed frontend origins"
     )
 
-    # ============================================================
-    # PYDANTIC SETTINGS CONFIGURATION
-    # ============================================================
+    # --------------------------------------------------------
+    # Pydantic Settings Configuration
+    # --------------------------------------------------------
 
     model_config = SettingsConfigDict(
         env_file=".env",
