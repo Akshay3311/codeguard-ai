@@ -15,7 +15,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # ├── backend/
 # │   └── app/
 # │       └── core/
-# │           └── config.py   <-- this file
+# │           └── config.py
 # ├── data/
 # │   └── knowledge/
 # ├── frontend/
@@ -33,29 +33,24 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 # DEFAULT DIRECTORIES
 # ============================================================
 
-# Project-level knowledge base:
-# codeguard-ai/data/knowledge/
-
 DEFAULT_KNOWLEDGE_BASE_DIR = (
     PROJECT_ROOT / "data" / "knowledge"
 )
 
-
-# Local storage directory:
-# codeguard-ai/storage/
-
-DEFAULT_STORAGE_DIR = PROJECT_ROOT / "storage"
+DEFAULT_STORAGE_DIR = (
+    PROJECT_ROOT / "storage"
+)
 
 
 # ============================================================
-# APPLICATION SETTINGS
+# SETTINGS
 # ============================================================
 
 class Settings(BaseSettings):
 
-    # --------------------------------------------------------
-    # Application
-    # --------------------------------------------------------
+    # ========================================================
+    # APPLICATION
+    # ========================================================
 
     PROJECT_NAME: str = Field(
         default="CodeGuard AI",
@@ -77,9 +72,10 @@ class Settings(BaseSettings):
         description="Application environment"
     )
 
-    # --------------------------------------------------------
-    # Database
-    # --------------------------------------------------------
+
+    # ========================================================
+    # DATABASE
+    # ========================================================
 
     DATABASE_URL: str = Field(
         default="sqlite+aiosqlite:///./codeguard.db",
@@ -97,9 +93,10 @@ class Settings(BaseSettings):
         )
     )
 
-    # --------------------------------------------------------
-    # Storage & Temporary Directories
-    # --------------------------------------------------------
+
+    # ========================================================
+    # STORAGE & TEMPORARY DIRECTORIES
+    # ========================================================
 
     STORAGE_DIR: str = Field(
         default=str(DEFAULT_STORAGE_DIR),
@@ -111,7 +108,7 @@ class Settings(BaseSettings):
 
     MAX_REPO_SIZE_MB: int = Field(
         default=50,
-        description="Maximum repository size in MB to clone"
+        description="Maximum repository size in MB"
     )
 
     MAX_FILE_SIZE_KB: int = Field(
@@ -124,9 +121,10 @@ class Settings(BaseSettings):
         description="Maximum Python files to analyze per run"
     )
 
-    # --------------------------------------------------------
-    # AI / LLM Configuration
-    # --------------------------------------------------------
+
+    # ========================================================
+    # AI / LLM CONFIGURATION
+    # ========================================================
 
     LLM_PROVIDER: str = Field(
         default="heuristic",
@@ -136,7 +134,10 @@ class Settings(BaseSettings):
         )
     )
 
+
+    # --------------------------------------------------------
     # OpenAI
+    # --------------------------------------------------------
 
     OPENAI_API_KEY: Optional[str] = Field(
         default=None,
@@ -148,7 +149,10 @@ class Settings(BaseSettings):
         description="OpenAI model name"
     )
 
+
+    # --------------------------------------------------------
     # Google Gemini
+    # --------------------------------------------------------
 
     GEMINI_API_KEY: Optional[str] = Field(
         default=None,
@@ -160,7 +164,10 @@ class Settings(BaseSettings):
         description="Google Gemini model name"
     )
 
+
+    # --------------------------------------------------------
     # Anthropic
+    # --------------------------------------------------------
 
     ANTHROPIC_API_KEY: Optional[str] = Field(
         default=None,
@@ -172,7 +179,10 @@ class Settings(BaseSettings):
         description="Anthropic model name"
     )
 
+
+    # --------------------------------------------------------
     # Ollama
+    # --------------------------------------------------------
 
     OLLAMA_BASE_URL: str = Field(
         default="http://localhost:11434",
@@ -184,9 +194,10 @@ class Settings(BaseSettings):
         description="Ollama model name"
     )
 
-    # --------------------------------------------------------
-    # RAG / Knowledge Base
-    # --------------------------------------------------------
+
+    # ========================================================
+    # RAG / KNOWLEDGE BASE
+    # ========================================================
 
     KNOWLEDGE_BASE_DIR: str = Field(
         default=str(DEFAULT_KNOWLEDGE_BASE_DIR),
@@ -204,9 +215,10 @@ class Settings(BaseSettings):
         )
     )
 
-    # --------------------------------------------------------
-    # Technical Debt Scoring Weights
-    # --------------------------------------------------------
+
+    # ========================================================
+    # TECHNICAL DEBT SCORING WEIGHTS
+    # ========================================================
 
     WEIGHT_SECURITY: float = Field(
         default=0.35,
@@ -233,9 +245,10 @@ class Settings(BaseSettings):
         description="Weight for duplicate logic"
     )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # CORS
-    # --------------------------------------------------------
+    # ========================================================
 
     CORS_ORIGINS: List[str] = Field(
         default=[
@@ -245,15 +258,16 @@ class Settings(BaseSettings):
             "http://127.0.0.1:3000",
             "http://127.0.0.1:5173",
 
-            # Production Vercel frontend
+            # Production frontend
             "https://codeguard-ai-silk.vercel.app",
         ],
         description="Allowed frontend origins"
     )
 
-    # --------------------------------------------------------
-    # Pydantic Settings Configuration
-    # --------------------------------------------------------
+
+    # ========================================================
+    # PYDANTIC SETTINGS
+    # ========================================================
 
     model_config = SettingsConfigDict(
         env_file=".env",
