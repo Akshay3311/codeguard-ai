@@ -1,7 +1,12 @@
+import os
 from typing import List, Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+# Determine base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
 class Settings(BaseSettings):
@@ -111,7 +116,7 @@ class Settings(BaseSettings):
     # ============================================================
 
     KNOWLEDGE_BASE_DIR: str = Field(
-        default="./data/knowledge",
+        default=os.path.join(BASE_DIR, "data", "knowledge"),
         description="Path to knowledge base markdown files"
     )
 
